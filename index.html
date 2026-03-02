@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voice Translator</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            margin:0;
+        }
+        .box {
+            background:white;
+            padding:30px;
+            width:400px;
+            border-radius:10px;
+            text-align:center;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+        }
+        textarea, select, button {
+            width:100%;
+            margin-top:10px;
+            padding:10px;
+        }
+        button {
+            background:#667eea;
+            color:white;
+            border:none;
+            cursor:pointer;
+        }
+        button:hover {
+            background:#5a67d8;
+        }
+        audio {
+            margin-top:10px;
+            width:100%;
+        }
+        #result {
+            margin-top:10px;
+            font-weight:bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>🌍 Voice Translator</h2>
+
+    <textarea id="text" placeholder="Enter text"></textarea>
+
+    <select id="lang">
+        <option value="en">English</option>
+        <option value="hi">Hindi</option>
+        <option value="te">Telugu</option>
+        <option value="ta">Tamil</option>
+        <option value="fr">French</option>
+        <option value="de">German</option>
+        <option value="es">Spanish</option>
+    </select>
+
+    <button onclick="translateText()">Translate</button>
+
+    <div id="result"></div>
+
+    <audio id="audioPlayer" controls></audio>
+</div>
+
+<script>
+async function translateText() {
+    const text = document.getElementById("text").value;
+    const lang = document.getElementById("lang").value;
+
+    if(!text){
+        alert("Enter text");
+        return;
+    }
+
+    const response = await fetch("/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            text: text,
+            dest: lang
+        })
+    });
+
+    const data = await response.json();
+
+    if(data.error){
+        alert(data.error);
+        return;
+    }
+
+    document.getElementById("result").innerText =
+        "Translated: " + data.translated_text;
+
+    const audio = document.getElementById("audioPlayer");
+    audio.src = data.audio_url;
+    audio.play();
+}
+</script>
+
+</body>
+</html>
